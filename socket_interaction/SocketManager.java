@@ -57,6 +57,20 @@ public class SocketManager {
             throw new ClientIsStoped();
         }
     }
+    public void send(byte[] message) throws Exception{
+        if(is_run) {
+            byte[] buffer = new byte[BUFFER_SIZE];
+            for(int i = 0; i < message.length; i += BUFFER_SIZE) {
+                Arrays.fill(buffer, (byte) 0);
+                System.arraycopy(message, i, buffer, 0, Math.min(BUFFER_SIZE, message.length - i));
+
+                output_stream.write(buffer);
+            }
+        }
+        else {
+            throw new ClientIsStoped();
+        }
+    }
     public byte readByte() throws Exception {
         if(is_run) {
             return input_stream.readByte();

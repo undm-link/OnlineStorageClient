@@ -173,6 +173,18 @@ public class CommandClient extends Client{
             throw ex;
         }
     }
+    public void create_file(String file_path, byte[] text)  throws Exception {
+        try {
+            run();
+            socket_manager.send("create_file " + file_path + " " + text.length);
+            socket_manager.send(text);
+            get_response();
+            stop();
+        } catch(Exception ex) {
+            stop();
+            throw ex;
+        }
+    }
     public void rewrite_file(String file_path, String text)  throws Exception {
         try {
             run();
@@ -185,10 +197,34 @@ public class CommandClient extends Client{
             throw ex;
         }
     }
+    public void rewrite_file(String file_path, byte[] text)  throws Exception {
+        try {
+            run();
+            socket_manager.send("rewrite_file " + file_path + " " + text.length);
+            socket_manager.send(text);
+            get_response();
+            stop();
+        } catch(Exception ex) {
+            stop();
+            throw ex;
+        }
+    }
     public void create_or_rewrite_file(String file_path, String text)  throws Exception {
         try{
         run();
             socket_manager.send("create_or_rewrite_file " + file_path + " " + text.length());
+            socket_manager.send(text);
+            get_response();
+            stop();
+        } catch(Exception ex) {
+            stop();
+            throw ex;
+        }
+    }
+    public void create_or_rewrite_file(String file_path, byte[] text)  throws Exception {
+        try{
+            run();
+            socket_manager.send("create_or_rewrite_file " + file_path + " " + text.length);
             socket_manager.send(text);
             get_response();
             stop();
