@@ -1,5 +1,7 @@
 package clients;
 
+import java.nio.charset.StandardCharsets;
+
 public class CommandClient extends Client{
     // Inner classes
     public enum ResponseStatus {
@@ -48,6 +50,15 @@ public class CommandClient extends Client{
 
         return response;
     }
+    private byte[] get_response_bytes() throws Exception{
+        ResponseStatus status = ResponseStatus.getByInt(socket_manager.readByte());
+
+        byte[] response = socket_manager.readAllBytes();
+
+        if(status != ResponseStatus.OK) throw new clients.errors.RequestError(status, new String(response, StandardCharsets.UTF_8));
+
+        return response;
+    }
 
     // Public functions
     public CommandClient(String address, int port) {
@@ -85,6 +96,18 @@ public class CommandClient extends Client{
             run();
             socket_manager.send("read " + path);
             String text = get_response();
+            stop();
+            return text;
+        } catch(Exception ex) {
+            stop();
+            throw ex;
+        }
+    }
+    public byte[] read_bytes(String path) throws Exception {
+        try {
+            run();
+            socket_manager.send("read " + path);
+            byte[] text = get_response_bytes();
             stop();
             return text;
         } catch(Exception ex) {
