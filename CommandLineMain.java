@@ -15,7 +15,7 @@ class CommandLineMain {
         String address = null;
         int port = -1;
         boolean isArgumentValid = true;
-        for (int i = 1; i < args.length; ++i) {
+        for (int i = 0; i < args.length; ++i) {
             if (args[i].equals("--address") || args[i].equals("--port")) {
                 if (i == args.length - 1) {
                     System.out.println("It must be at least one argument after \"--address\" and \"--port\"");
