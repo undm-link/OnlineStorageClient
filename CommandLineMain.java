@@ -7,8 +7,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
 
 class CommandLineMain {
-    private final static String DEFAULT_ADDRESS = "127.0.0.1";
-    private final static int DEFAULT_PORT = 8000;
+    private static final String DEFAULT_ADDRESS = "127.0.0.1";
+    private static final int DEFAULT_PORT = 8000;
 
     public static void main(String[] args) {
         String address = null;
@@ -17,7 +17,8 @@ class CommandLineMain {
         for (int i = 0; i < args.length; ++i) {
             if (args[i].equals("--address") || args[i].equals("--port")) {
                 if (i == args.length - 1) {
-                    System.out.println("It must be at least one argument after \"--address\" and \"--port\"");
+                    System.out.println(
+                            "It must be at least one argument after \"--address\" and \"--port\"");
                     isArgumentValid = false;
                     break;
                 } else if (args[i].equals("--address")) {
@@ -25,8 +26,7 @@ class CommandLineMain {
                 } else if (args[i].equals("--port")) {
                     try {
                         port = Integer.parseInt(args[i + 1]);
-                    }
-                    catch (java.lang.NumberFormatException ex) {
+                    } catch (java.lang.NumberFormatException ex) {
                         isArgumentValid = false;
                         System.out.println(ex.getMessage());
                     }
@@ -36,10 +36,10 @@ class CommandLineMain {
             }
         }
 
-        if(address == null) {
+        if (address == null) {
             address = DEFAULT_ADDRESS;
         }
-        if(port == -1) {
+        if (port == -1) {
             port = DEFAULT_PORT;
         }
 
@@ -56,7 +56,9 @@ class CommandLineMain {
                         String command = scanner.nextLine();
 
                         switch (command) {
-                            case "help" -> System.out.println("""
+                            case "help" ->
+                                    System.out.println(
+                                            """
                                     exit - exit program
                                     show_files, ls - show all files and directories in current directory
                                     read - show file value
@@ -79,16 +81,16 @@ class CommandLineMain {
                                 var entries = client.showFiles(path);
 
                                 System.out.println("Directories:");
-                                for(var el : entries) {
-                                    if(el.type() == CommandClient.DirectoryEntryType.DIRECTORY) {
+                                for (var el : entries) {
+                                    if (el.type() == CommandClient.DirectoryEntryType.DIRECTORY) {
                                         System.out.println(el.name());
                                     }
                                 }
 
                                 System.out.println();
                                 System.out.println("Files:");
-                                for(var el : entries) {
-                                    if(el.type() == CommandClient.DirectoryEntryType.FILE) {
+                                for (var el : entries) {
+                                    if (el.type() == CommandClient.DirectoryEntryType.FILE) {
                                         System.out.println(el.name());
                                     }
                                 }
@@ -103,17 +105,17 @@ class CommandLineMain {
                                 System.out.println("Enter path:");
                                 String path = scanner.nextLine();
 
-                                try
-                                {
+                                try {
                                     client.delete(path);
                                 } catch (clients.errors.RequestError ex) {
-                                    if(ex.type == CommandClient.ResponseStatus.DIRECTORY_NOT_EMPTY) {
-                                        System.out.println("Directory isn't empty. If you still want to delete it write 'YES'");
-                                        if(scanner.nextLine().equals("YES")) {
+                                    if (ex.type
+                                            == CommandClient.ResponseStatus.DIRECTORY_NOT_EMPTY) {
+                                        System.out.println(
+                                                "Directory isn't empty. If you still want to delete it write 'YES'");
+                                        if (scanner.nextLine().equals("YES")) {
                                             client.deleteAll(path);
                                         }
-                                    }
-                                    else {
+                                    } else {
                                         throw ex;
                                     }
                                 }
@@ -141,15 +143,14 @@ class CommandLineMain {
                                 String path = scanner.nextLine();
 
                                 File file = new File(filePath);
-                                if(file.exists()) {
+                                if (file.exists()) {
                                     var inputStream = new FileInputStream(file);
                                     client.createFile(
                                             path,
                                             new String(
                                                     inputStream.readAllBytes(),
                                                     StandardCharsets.UTF_8));
-                                }
-                                else {
+                                } else {
                                     System.out.println("File doesn't exists");
                                 }
                             }
@@ -168,15 +169,14 @@ class CommandLineMain {
                                 String path = scanner.nextLine();
 
                                 File file = new File(file_path);
-                                if(file.exists()) {
+                                if (file.exists()) {
                                     var inputStream = new FileInputStream(file);
                                     client.createOrRewriteFile(
                                             path,
                                             new String(
                                                     inputStream.readAllBytes(),
                                                     StandardCharsets.UTF_8));
-                                }
-                                else {
+                                } else {
                                     System.out.println("File doesn't exists");
                                 }
                             }
@@ -236,21 +236,18 @@ class CommandLineMain {
                             }
                             case null, default -> System.out.println("Command is unknown");
                         }
-                    }
-                    catch(clients.errors.RequestError ex) {
+                    } catch (clients.errors.RequestError ex) {
                         System.out.println("Request Error:");
                         System.out.println(ex.type);
                         System.out.println(ex.message);
-                    }
-                    catch(Exception ex) {
+                    } catch (Exception ex) {
                         System.out.println("Error occurred");
                         System.out.println("Error message: " + ex.getMessage());
                     }
 
                     System.out.println();
                 }
-            }
-            catch(Exception ex) {
+            } catch (Exception ex) {
                 System.out.println("Error occurred");
                 System.out.println("Error message: " + ex.getMessage());
             }
