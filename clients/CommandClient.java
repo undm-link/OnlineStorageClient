@@ -3,42 +3,10 @@ package clients;
 import java.nio.charset.StandardCharsets;
 
 public class CommandClient extends Client{
-    // Inner classes
-    public enum ResponseStatus {
-        OK(1),
-        UNKNOWN_ERROR(-1),
-
-        // Client Errors
-        BAD_REQUEST(2),
-        INCORRECT_ARGUMENTS(3),
-        INCORRECT_COMMAND(4),
-        COMMAND_CANT_BE_EXECUTED(5),
-        DIRECTORY_NOT_EMPTY(6),
-
-        // Server Errors
-        SERVER_ERROR(129);
-
-        public final int code;
-        ResponseStatus(int code) {
-            this.code = code;
-        }
-
-        static ResponseStatus getByInt(int num) {
-            for (var type : values()) {
-                if (type.code == num) {
-                    return type;
-                }
-            }
-
-            return null;
-        }
+    // Public functions
+    public CommandClient(String address, int port) {
+        super(address, port);
     }
-
-    public enum DirectoryEntryType {
-        FILE,
-        DIRECTORY,
-    }
-    public record DirectoryEntry(DirectoryEntryType type, String name){}
 
     // Private functions
     private String get_response() throws Exception{
@@ -50,6 +18,7 @@ public class CommandClient extends Client{
 
         return response;
     }
+
     private byte[] get_response_bytes() throws Exception{
         ResponseStatus status = ResponseStatus.getByInt(socket_manager.readByte());
 
@@ -58,11 +27,6 @@ public class CommandClient extends Client{
         if(status != ResponseStatus.OK) throw new clients.errors.RequestError(status, new String(response, StandardCharsets.UTF_8));
 
         return response;
-    }
-
-    // Public functions
-    public CommandClient(String address, int port) {
-        super(address, port);
     }
 
     // Commands
@@ -91,6 +55,7 @@ public class CommandClient extends Client{
             throw ex;
         }
     }
+
     public String read(String path) throws Exception {
         try {
             run();
@@ -103,6 +68,7 @@ public class CommandClient extends Client{
             throw ex;
         }
     }
+
     public byte[] read_bytes(String path) throws Exception {
         try {
             run();
@@ -115,6 +81,7 @@ public class CommandClient extends Client{
             throw ex;
         }
     }
+
     public void delete_all(String path)  throws Exception {
         try {
             run();
@@ -126,6 +93,7 @@ public class CommandClient extends Client{
             throw ex;
         }
     }
+
     public void delete(String path)  throws Exception {
         try {
             run();
@@ -137,6 +105,7 @@ public class CommandClient extends Client{
             throw ex;
         }
     }
+
     public void change_data(String path, String new_name, String new_path) throws Exception{
         try {
             String message = "change_data " + path;
@@ -158,9 +127,11 @@ public class CommandClient extends Client{
             throw ex;
         }
     }
+
     public void change_data(String path, String new_name) throws Exception {
         change_data(path, new_name, null);
     }
+
     public void create_file(String file_path, String text)  throws Exception {
         try {
             run();
@@ -173,6 +144,7 @@ public class CommandClient extends Client{
             throw ex;
         }
     }
+
     public void create_file(String file_path, byte[] text)  throws Exception {
         try {
             run();
@@ -185,6 +157,7 @@ public class CommandClient extends Client{
             throw ex;
         }
     }
+
     public void rewrite_file(String file_path, String text)  throws Exception {
         try {
             run();
@@ -197,6 +170,7 @@ public class CommandClient extends Client{
             throw ex;
         }
     }
+
     public void rewrite_file(String file_path, byte[] text)  throws Exception {
         try {
             run();
@@ -209,6 +183,7 @@ public class CommandClient extends Client{
             throw ex;
         }
     }
+
     public void create_or_rewrite_file(String file_path, String text)  throws Exception {
         try{
         run();
@@ -221,6 +196,7 @@ public class CommandClient extends Client{
             throw ex;
         }
     }
+
     public void create_or_rewrite_file(String file_path, byte[] text)  throws Exception {
         try{
             run();
@@ -233,6 +209,7 @@ public class CommandClient extends Client{
             throw ex;
         }
     }
+
     public void change_file_data(String path, String new_name)  throws Exception {
         try {
             String message = "change_file_data " + path;
@@ -250,9 +227,11 @@ public class CommandClient extends Client{
             throw ex;
         }
     }
+
     public void replace(String old_path, String new_path) throws Exception {
         change_data(old_path, null, new_path);
     }
+
     public void create_directory(String path)  throws Exception {
         try {
             run();
@@ -264,6 +243,7 @@ public class CommandClient extends Client{
             throw ex;
         }
     }
+
     public void change_directory_data(String path, String new_name)  throws Exception {
         try {
             String message = "change_directory_data " + path;
@@ -294,4 +274,43 @@ public class CommandClient extends Client{
             throw ex;
         }
     }
+
+    // Inner classes
+    public enum ResponseStatus {
+        OK(1),
+        UNKNOWN_ERROR(-1),
+
+        // Client Errors
+        BAD_REQUEST(2),
+        INCORRECT_ARGUMENTS(3),
+        INCORRECT_COMMAND(4),
+        COMMAND_CANT_BE_EXECUTED(5),
+        DIRECTORY_NOT_EMPTY(6),
+
+        // Server Errors
+        SERVER_ERROR(129);
+
+        public final int code;
+
+        ResponseStatus(int code) {
+            this.code = code;
+        }
+
+        static ResponseStatus getByInt(int num) {
+            for (var type : values()) {
+                if (type.code == num) {
+                    return type;
+                }
+            }
+
+            return null;
+        }
+    }
+
+    public enum DirectoryEntryType {
+        FILE,
+        DIRECTORY,
+    }
+
+    public record DirectoryEntry(DirectoryEntryType type, String name) {}
 }

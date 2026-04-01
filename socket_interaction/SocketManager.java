@@ -3,8 +3,8 @@ package socket_interaction;
 import socket_interaction.errors.ClientAlreadyRun;
 import socket_interaction.errors.ClientIsStoped;
 
-import java.net.*;
 import java.io.*;
+import java.net.*;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
@@ -26,6 +26,7 @@ public class SocketManager {
         this.address = address;
         this.port = port;
     }
+
     public void run() throws Exception {
         if (is_run) throw new ClientAlreadyRun();
 
@@ -35,72 +36,74 @@ public class SocketManager {
 
         is_run = true;
     }
-    public void stop() throws Exception{
-        if(is_run)
-        {
+
+    public void stop() throws Exception {
+        if (is_run) {
             socket.close();
             is_run = false;
         }
     }
-    public void send(String message) throws Exception{
-        if(is_run) {
+
+    public void send(String message) throws Exception {
+        if (is_run) {
             byte[] buffer = new byte[BUFFER_SIZE];
             byte[] message_bytes = message.getBytes();
-            for(int i = 0; i < message.length(); i += BUFFER_SIZE) {
+            for (int i = 0; i < message.length(); i += BUFFER_SIZE) {
                 Arrays.fill(buffer, (byte) 0);
-                System.arraycopy(message_bytes, i, buffer, 0, Math.min(BUFFER_SIZE, message_bytes.length - i));
+                System.arraycopy(
+                        message_bytes,
+                        i,
+                        buffer,
+                        0,
+                        Math.min(BUFFER_SIZE, message_bytes.length - i));
 
                 output_stream.write(buffer);
             }
-        }
-        else {
+        } else {
             throw new ClientIsStoped();
         }
     }
-    public void send(byte[] message) throws Exception{
-        if(is_run) {
+
+    public void send(byte[] message) throws Exception {
+        if (is_run) {
             byte[] buffer = new byte[BUFFER_SIZE];
-            for(int i = 0; i < message.length; i += BUFFER_SIZE) {
+            for (int i = 0; i < message.length; i += BUFFER_SIZE) {
                 Arrays.fill(buffer, (byte) 0);
                 System.arraycopy(message, i, buffer, 0, Math.min(BUFFER_SIZE, message.length - i));
 
                 output_stream.write(buffer);
             }
-        }
-        else {
+        } else {
             throw new ClientIsStoped();
         }
     }
+
     public byte readByte() throws Exception {
-        if(is_run) {
+        if (is_run) {
             return input_stream.readByte();
-        }
-        else {
+        } else {
             throw new ClientIsStoped();
         }
     }
+
     public byte[] readAllBytes() throws Exception {
-        if(is_run) {
+        if (is_run) {
             return input_stream.readAllBytes();
-        }
-        else {
+        } else {
             throw new ClientIsStoped();
         }
     }
-    public String read() throws Exception{
-        if(is_run) {
+
+    public String read() throws Exception {
+        if (is_run) {
             String response = new String(input_stream.readAllBytes(), StandardCharsets.UTF_8);
             long end = response.indexOf('\000');
-            if(end != -1)
-            {
+            if (end != -1) {
                 response = response.substring(0, response.indexOf('\000'));
             }
             return response;
-        }
-        else {
+        } else {
             throw new ClientIsStoped();
         }
     }
 }
-
-

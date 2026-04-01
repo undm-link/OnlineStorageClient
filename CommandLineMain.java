@@ -1,11 +1,11 @@
 import clients.CommandClient;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 import java.util.Scanner;
-import java.io.File;
-import java.io.FileInputStream;
 
 class CommandLineMain {
     private final static String DEFAULT_ADDRESS = "127.0.0.1";
