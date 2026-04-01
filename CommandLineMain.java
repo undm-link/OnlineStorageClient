@@ -14,12 +14,12 @@ class CommandLineMain {
     public static void main(String[] args) {
         String address = null;
         int port = -1;
-        boolean is_argument_valid = true;
+        boolean isArgumentValid = true;
         for (int i = 1; i < args.length; ++i) {
             if (Objects.equals(args[i], "--address") || Objects.equals(args[i], "--port")) {
                 if (i == args.length - 1) {
                     System.out.println("It must be at least one argument after \"--address\" and \"--port\"");
-                    is_argument_valid = false;
+                    isArgumentValid = false;
                     break;
                 }
                 else if (Objects.equals(args[i], "--address")) {
@@ -30,7 +30,7 @@ class CommandLineMain {
                         port = Integer.parseInt(args[i + 1]);
                     }
                     catch (java.lang.NumberFormatException ex) {
-                        is_argument_valid = false;
+                        isArgumentValid = false;
                         System.out.println(ex.getMessage());
                     }
                 }
@@ -46,14 +46,14 @@ class CommandLineMain {
             port = DEFAULT_PORT;
         }
 
-        if(is_argument_valid) {
+        if (isArgumentValid) {
             try {
                 var client = new CommandClient(address, port);
 
                 var scanner = new Scanner(System.in);
 
-                boolean is_program_run = true;
-                while(is_program_run) {
+                boolean isProgramRun = true;
+                while (isProgramRun) {
                     try {
                         System.out.println("Enter command:");
                         String command = scanner.nextLine();
@@ -75,11 +75,11 @@ class CommandLineMain {
                                     rename_directory - change directory name
                                     download_file - download file
                                     """);
-                            case "exit" -> is_program_run = false;
+                            case "exit" -> isProgramRun = false;
                             case "show_files", "ls" -> {
                                 System.out.println("Enter path:");
                                 String path = scanner.nextLine();
-                                var entries = client.show_files(path);
+                                var entries = client.showFiles(path);
 
                                 System.out.println("Directories:");
                                 for(var el : entries) {
@@ -113,7 +113,7 @@ class CommandLineMain {
                                     if(ex.type == CommandClient.ResponseStatus.DIRECTORY_NOT_EMPTY) {
                                         System.out.println("Directory isn't empty. If you still want to delete it write 'YES'");
                                         if(scanner.nextLine().equals("YES")) {
-                                            client.delete_all(path);
+                                            client.deleteAll(path);
                                         }
                                     }
                                     else {
@@ -127,7 +127,7 @@ class CommandLineMain {
                                 System.out.println("Enter text:");
                                 String text = scanner.nextLine();
 
-                                client.create_file(path, text);
+                                client.createFile(path, text);
                             }
                             case "rewrite_file" -> {
                                 System.out.println("Enter path:");
@@ -135,18 +135,22 @@ class CommandLineMain {
                                 System.out.println("Enter text:");
                                 String text = scanner.nextLine();
 
-                                client.rewrite_file(path, text);
+                                client.rewriteFile(path, text);
                             }
                             case "copy_file" -> {
                                 System.out.println("Enter to path of copied file:");
-                                String file_path = scanner.nextLine();
+                                String filePath = scanner.nextLine();
                                 System.out.println("Enter to path to new place for file:");
                                 String path = scanner.nextLine();
 
-                                File file = new File(file_path);
+                                File file = new File(filePath);
                                 if(file.exists()) {
-                                    var input_stream = new FileInputStream(file);
-                                    client.create_file(path, new String(input_stream.readAllBytes(), StandardCharsets.UTF_8));
+                                    var inputStream = new FileInputStream(file);
+                                    client.createFile(
+                                            path,
+                                            new String(
+                                                    inputStream.readAllBytes(),
+                                                    StandardCharsets.UTF_8));
                                 }
                                 else {
                                     System.out.println("File doesn't exists");
@@ -158,7 +162,7 @@ class CommandLineMain {
                                 System.out.println("Enter text:");
                                 String text = scanner.nextLine();
 
-                                client.create_or_rewrite_file(path, text);
+                                client.createOrRewriteFile(path, text);
                             }
                             case "copy_or_rewrite_file" -> {
                                 System.out.println("Enter to path of copied file:");
@@ -168,8 +172,12 @@ class CommandLineMain {
 
                                 File file = new File(file_path);
                                 if(file.exists()) {
-                                    var input_stream = new FileInputStream(file);
-                                    client.create_or_rewrite_file(path, new String(input_stream.readAllBytes(), StandardCharsets.UTF_8));
+                                    var inputStream = new FileInputStream(file);
+                                    client.createOrRewriteFile(
+                                            path,
+                                            new String(
+                                                    inputStream.readAllBytes(),
+                                                    StandardCharsets.UTF_8));
                                 }
                                 else {
                                     System.out.println("File doesn't exists");
@@ -181,7 +189,7 @@ class CommandLineMain {
                                 System.out.println("Enter new name:");
                                 String name = scanner.nextLine();
 
-                                client.change_data(path, name);
+                                client.changeData(path, name);
                             }
                             case "rename_file" -> {
                                 System.out.println("Enter path to file:");
@@ -189,7 +197,7 @@ class CommandLineMain {
                                 System.out.println("Enter new name:");
                                 String name = scanner.nextLine();
 
-                                client.change_file_data(path, name);
+                                client.changeFileData(path, name);
                             }
                             case "replace" -> {
                                 System.out.println("Enter old path:");
@@ -202,7 +210,7 @@ class CommandLineMain {
                             case "create_directory" -> {
                                 System.out.println("Enter path to new directory:");
                                 String path = scanner.nextLine();
-                                client.create_directory(path);
+                                client.createDirectory(path);
                             }
                             case "rename_directory" -> {
                                 System.out.println("Enter path to directory:");
@@ -210,24 +218,24 @@ class CommandLineMain {
                                 System.out.println("Enter new name");
                                 String name = scanner.nextLine();
 
-                                client.change_directory_data(path, name);
+                                client.changeDirectoryData(path, name);
                             }
                             case "download_file" -> {
                                 System.out.println("Enter path to file to download:");
                                 String path = scanner.nextLine();
-                                String file_content = client.read(path);
+                                String fileContent = client.read(path);
                                 System.out.println("Enter path to directory of downloading:");
                                 var file = new FileOutputStream(scanner.nextLine());
-                                file.write(file_content.getBytes());
+                                file.write(fileContent.getBytes());
                             }
                             // Outdated commands
                             case "replace_file" -> {
                                 System.out.println("Enter old path:");
-                                String old_path = scanner.nextLine();
+                                String oldPath = scanner.nextLine();
                                 System.out.println("Enter new path:");
-                                String new_path = scanner.nextLine();
+                                String newPath = scanner.nextLine();
 
-                                client.replace_file(old_path, new_path);
+                                client.replaceFile(oldPath, newPath);
                             }
                             case null, default -> System.out.println("Command is unknown");
                         }
@@ -250,7 +258,7 @@ class CommandLineMain {
                 System.out.println("Error message: " + ex.getMessage());
             }
 
-            System.out.println("Program stoped");
+            System.out.println("Program stopped");
         }
     }
 }

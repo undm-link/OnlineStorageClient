@@ -3,18 +3,18 @@ package clients;
 import socket_interaction.SocketManager;
 
 public abstract class Client {
-    protected SocketManager socket_manager;
+    protected SocketManager socketManager;
 
     public Client(String address, int port) {
-        socket_manager = new SocketManager(address, port);
+        socketManager = new SocketManager(address, port);
     }
 
     protected void run() throws Exception {
-        socket_manager.run();
+        socketManager.run();
     }
 
     protected void stop() throws Exception {
-        socket_manager.stop();
+        socketManager.stop();
     }
 
     protected void refresh() throws Exception {

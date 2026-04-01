@@ -16,10 +16,10 @@ public class SocketManager {
     private final String address;
     private final int port;
 
-    private boolean is_run = false;
+    private boolean isRun = false;
     private Socket socket;
-    DataOutputStream output_stream;
-    DataInputStream input_stream;
+    DataOutputStream outputStream;
+    DataInputStream inputStream;
 
     // Public Functions
     public SocketManager(String address, int port) {
@@ -28,24 +28,24 @@ public class SocketManager {
     }
 
     public void run() throws Exception {
-        if (is_run) throw new ClientAlreadyRun();
+        if (isRun) throw new ClientAlreadyRun();
 
         socket = new Socket(address, port);
-        output_stream = new DataOutputStream(socket.getOutputStream());
-        input_stream = new DataInputStream(socket.getInputStream());
+        outputStream = new DataOutputStream(socket.getOutputStream());
+        inputStream = new DataInputStream(socket.getInputStream());
 
-        is_run = true;
+        isRun = true;
     }
 
     public void stop() throws Exception {
-        if (is_run) {
+        if (isRun) {
             socket.close();
-            is_run = false;
+            isRun = false;
         }
     }
 
     public void send(String message) throws Exception {
-        if (is_run) {
+        if (isRun) {
             byte[] buffer = new byte[BUFFER_SIZE];
             byte[] message_bytes = message.getBytes();
             for (int i = 0; i < message.length(); i += BUFFER_SIZE) {
@@ -57,7 +57,7 @@ public class SocketManager {
                         0,
                         Math.min(BUFFER_SIZE, message_bytes.length - i));
 
-                output_stream.write(buffer);
+                outputStream.write(buffer);
             }
         } else {
             throw new ClientIsStoped();
@@ -65,13 +65,13 @@ public class SocketManager {
     }
 
     public void send(byte[] message) throws Exception {
-        if (is_run) {
+        if (isRun) {
             byte[] buffer = new byte[BUFFER_SIZE];
             for (int i = 0; i < message.length; i += BUFFER_SIZE) {
                 Arrays.fill(buffer, (byte) 0);
                 System.arraycopy(message, i, buffer, 0, Math.min(BUFFER_SIZE, message.length - i));
 
-                output_stream.write(buffer);
+                outputStream.write(buffer);
             }
         } else {
             throw new ClientIsStoped();
@@ -79,24 +79,24 @@ public class SocketManager {
     }
 
     public byte readByte() throws Exception {
-        if (is_run) {
-            return input_stream.readByte();
+        if (isRun) {
+            return inputStream.readByte();
         } else {
             throw new ClientIsStoped();
         }
     }
 
     public byte[] readAllBytes() throws Exception {
-        if (is_run) {
-            return input_stream.readAllBytes();
+        if (isRun) {
+            return inputStream.readAllBytes();
         } else {
             throw new ClientIsStoped();
         }
     }
 
     public String read() throws Exception {
-        if (is_run) {
-            String response = new String(input_stream.readAllBytes(), StandardCharsets.UTF_8);
+        if (isRun) {
+            String response = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
             long end = response.indexOf('\000');
             if (end != -1) {
                 response = response.substring(0, response.indexOf('\000'));

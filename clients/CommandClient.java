@@ -9,20 +9,20 @@ public class CommandClient extends Client{
     }
 
     // Private functions
-    private String get_response() throws Exception{
-        ResponseStatus status = ResponseStatus.getByInt(socket_manager.readByte());
+    private String getResponse() throws Exception {
+        ResponseStatus status = ResponseStatus.getByInt(socketManager.readByte());
 
-        String response = socket_manager.read();
+        String response = socketManager.read();
 
         if(status != ResponseStatus.OK) throw new clients.errors.RequestError(status, response);
 
         return response;
     }
 
-    private byte[] get_response_bytes() throws Exception{
-        ResponseStatus status = ResponseStatus.getByInt(socket_manager.readByte());
+    private byte[] getResponseBytes() throws Exception {
+        ResponseStatus status = ResponseStatus.getByInt(socketManager.readByte());
 
-        byte[] response = socket_manager.readAllBytes();
+        byte[] response = socketManager.readAllBytes();
 
         if(status != ResponseStatus.OK) throw new clients.errors.RequestError(status, new String(response, StandardCharsets.UTF_8));
 
@@ -30,12 +30,12 @@ public class CommandClient extends Client{
     }
 
     // Commands
-    public DirectoryEntry[] show_files(String path) throws Exception {
+    public DirectoryEntry[] showFiles(String path) throws Exception {
         try {
             run();
-            socket_manager.send("show_files " + path);
+            socketManager.send("show_files " + path);
 
-            String[] arr = get_response().split(" ");
+            String[] arr = getResponse().split(" ");
             DirectoryEntry[] files = new DirectoryEntry[arr.length/2];
             stop();
 
@@ -59,8 +59,8 @@ public class CommandClient extends Client{
     public String read(String path) throws Exception {
         try {
             run();
-            socket_manager.send("read " + path);
-            String text = get_response();
+            socketManager.send("read " + path);
+            String text = getResponse();
             stop();
             return text;
         } catch(Exception ex) {
@@ -69,11 +69,11 @@ public class CommandClient extends Client{
         }
     }
 
-    public byte[] read_bytes(String path) throws Exception {
+    public byte[] readBytes(String path) throws Exception {
         try {
             run();
-            socket_manager.send("read " + path);
-            byte[] text = get_response_bytes();
+            socketManager.send("read " + path);
+            byte[] text = getResponseBytes();
             stop();
             return text;
         } catch(Exception ex) {
@@ -82,11 +82,11 @@ public class CommandClient extends Client{
         }
     }
 
-    public void delete_all(String path)  throws Exception {
+    public void deleteAll(String path) throws Exception {
         try {
             run();
-            socket_manager.send("delete_all " + path);
-            get_response();
+            socketManager.send("delete_all " + path);
+            getResponse();
             stop();
         } catch(Exception ex) {
             stop();
@@ -97,8 +97,8 @@ public class CommandClient extends Client{
     public void delete(String path)  throws Exception {
         try {
             run();
-            socket_manager.send("delete " + path);
-            get_response();
+            socketManager.send("delete " + path);
+            getResponse();
             stop();
         } catch(Exception ex) {
             stop();
@@ -106,21 +106,19 @@ public class CommandClient extends Client{
         }
     }
 
-    public void change_data(String path, String new_name, String new_path) throws Exception{
+    public void changeData(String path, String newName, String newPath) throws Exception {
         try {
             String message = "change_data " + path;
-            if(new_name != null)
-            {
-                message += " --name " + new_name;
+            if (newName != null) {
+                message += " --name " + newName;
             }
-            if(new_path != null)
-            {
-                message += " --dir " + new_path;
+            if (newPath != null) {
+                message += " --dir " + newPath;
             }
 
             run();
-            socket_manager.send(message);
-            get_response();
+            socketManager.send(message);
+            getResponse();
             stop();
         } catch(Exception ex) {
             stop();
@@ -128,16 +126,16 @@ public class CommandClient extends Client{
         }
     }
 
-    public void change_data(String path, String new_name) throws Exception {
-        change_data(path, new_name, null);
+    public void changeData(String path, String newName) throws Exception {
+        changeData(path, newName, null);
     }
 
-    public void create_file(String file_path, String text)  throws Exception {
+    public void createFile(String filePath, String text) throws Exception {
         try {
             run();
-            socket_manager.send("create_file " + file_path + " " + text.length());
-            socket_manager.send(text);
-            get_response();
+            socketManager.send("create_file " + filePath + " " + text.length());
+            socketManager.send(text);
+            getResponse();
             stop();
         } catch(Exception ex) {
             stop();
@@ -145,12 +143,12 @@ public class CommandClient extends Client{
         }
     }
 
-    public void create_file(String file_path, byte[] text)  throws Exception {
+    public void createFile(String filePath, byte[] text) throws Exception {
         try {
             run();
-            socket_manager.send("create_file " + file_path + " " + text.length);
-            socket_manager.send(text);
-            get_response();
+            socketManager.send("create_file " + filePath + " " + text.length);
+            socketManager.send(text);
+            getResponse();
             stop();
         } catch(Exception ex) {
             stop();
@@ -158,12 +156,12 @@ public class CommandClient extends Client{
         }
     }
 
-    public void rewrite_file(String file_path, String text)  throws Exception {
+    public void rewriteFile(String filePath, String text) throws Exception {
         try {
             run();
-            socket_manager.send("rewrite_file " + file_path + " " + text.length());
-            socket_manager.send(text);
-            get_response();
+            socketManager.send("rewrite_file " + filePath + " " + text.length());
+            socketManager.send(text);
+            getResponse();
             stop();
         } catch(Exception ex) {
             stop();
@@ -171,12 +169,12 @@ public class CommandClient extends Client{
         }
     }
 
-    public void rewrite_file(String file_path, byte[] text)  throws Exception {
+    public void rewriteFile(String filePath, byte[] text) throws Exception {
         try {
             run();
-            socket_manager.send("rewrite_file " + file_path + " " + text.length);
-            socket_manager.send(text);
-            get_response();
+            socketManager.send("rewrite_file " + filePath + " " + text.length);
+            socketManager.send(text);
+            getResponse();
             stop();
         } catch(Exception ex) {
             stop();
@@ -184,12 +182,12 @@ public class CommandClient extends Client{
         }
     }
 
-    public void create_or_rewrite_file(String file_path, String text)  throws Exception {
+    public void createOrRewriteFile(String filePath, String text) throws Exception {
         try{
         run();
-            socket_manager.send("create_or_rewrite_file " + file_path + " " + text.length());
-            socket_manager.send(text);
-            get_response();
+            socketManager.send("create_or_rewrite_file " + filePath + " " + text.length());
+            socketManager.send(text);
+            getResponse();
             stop();
         } catch(Exception ex) {
             stop();
@@ -197,12 +195,12 @@ public class CommandClient extends Client{
         }
     }
 
-    public void create_or_rewrite_file(String file_path, byte[] text)  throws Exception {
+    public void createOrRewriteFile(String filePath, byte[] text) throws Exception {
         try{
             run();
-            socket_manager.send("create_or_rewrite_file " + file_path + " " + text.length);
-            socket_manager.send(text);
-            get_response();
+            socketManager.send("create_or_rewrite_file " + filePath + " " + text.length);
+            socketManager.send(text);
+            getResponse();
             stop();
         } catch(Exception ex) {
             stop();
@@ -210,17 +208,16 @@ public class CommandClient extends Client{
         }
     }
 
-    public void change_file_data(String path, String new_name)  throws Exception {
+    public void changeFileData(String path, String newName) throws Exception {
         try {
             String message = "change_file_data " + path;
-            if(new_name != null)
-            {
-                message += " --name " + new_name;
+            if (newName != null) {
+                message += " --name " + newName;
             }
 
             run();
-            socket_manager.send(message);
-            get_response();
+            socketManager.send(message);
+            getResponse();
             stop();
         } catch(Exception ex) {
             stop();
@@ -228,15 +225,15 @@ public class CommandClient extends Client{
         }
     }
 
-    public void replace(String old_path, String new_path) throws Exception {
-        change_data(old_path, null, new_path);
+    public void replace(String oldPath, String newPath) throws Exception {
+        changeData(oldPath, null, newPath);
     }
 
-    public void create_directory(String path)  throws Exception {
+    public void createDirectory(String path) throws Exception {
         try {
             run();
-            socket_manager.send("create_directory " + path);
-            get_response();
+            socketManager.send("create_directory " + path);
+            getResponse();
             stop();
         } catch(Exception ex) {
             stop();
@@ -244,17 +241,16 @@ public class CommandClient extends Client{
         }
     }
 
-    public void change_directory_data(String path, String new_name)  throws Exception {
+    public void changeDirectoryData(String path, String newName) throws Exception {
         try {
             String message = "change_directory_data " + path;
-            if(new_name != null)
-            {
-                message += " --name " + new_name;
+            if (newName != null) {
+                message += " --name " + newName;
             }
 
             run();
-            socket_manager.send(message);
-            get_response();
+            socketManager.send(message);
+            getResponse();
             stop();
         } catch(Exception ex) {
             stop();
@@ -263,11 +259,11 @@ public class CommandClient extends Client{
     }
 
     // Outdated commands
-    public void replace_file(String old_path, String new_path)  throws Exception {
+    public void replaceFile(String oldPath, String newPath) throws Exception {
         try {
             run();
-            socket_manager.send("replace_file " + old_path + " " + new_path);
-            get_response();
+            socketManager.send("replace_file " + oldPath + " " + newPath);
+            getResponse();
             stop();
         } catch(Exception ex) {
             stop();
