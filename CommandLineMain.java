@@ -16,16 +16,14 @@ class CommandLineMain {
         int port = -1;
         boolean isArgumentValid = true;
         for (int i = 1; i < args.length; ++i) {
-            if (Objects.equals(args[i], "--address") || Objects.equals(args[i], "--port")) {
+            if (args[i].equals("--address") || args[i].equals("--port")) {
                 if (i == args.length - 1) {
                     System.out.println("It must be at least one argument after \"--address\" and \"--port\"");
                     isArgumentValid = false;
                     break;
-                }
-                else if (Objects.equals(args[i], "--address")) {
+                } else if (args[i].equals("--address")) {
                     address = args[i + 1];
-                }
-                else if (Objects.equals(args[i], "--port")) {
+                } else if (args[i].equals("--port")) {
                     try {
                         port = Integer.parseInt(args[i + 1]);
                     }
