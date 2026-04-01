@@ -1,7 +1,7 @@
 package socket_interaction;
 
 import socket_interaction.errors.ClientAlreadyRun;
-import socket_interaction.errors.ClientIsStoped;
+import socket_interaction.errors.ClientIsStopped;
 
 import java.io.*;
 import java.net.*;
@@ -27,7 +27,7 @@ public class SocketManager {
         this.port = port;
     }
 
-    public void run() throws Exception {
+    public void run() throws ClientAlreadyRun, IOException {
         if (isRun) throw new ClientAlreadyRun();
 
         socket = new Socket(address, port);
@@ -37,14 +37,14 @@ public class SocketManager {
         isRun = true;
     }
 
-    public void stop() throws Exception {
+    public void stop() throws IOException {
         if (isRun) {
             socket.close();
             isRun = false;
         }
     }
 
-    public void send(String message) throws Exception {
+    public void send(String message) throws ClientIsStopped, IOException {
         if (isRun) {
             byte[] buffer = new byte[BUFFER_SIZE];
             byte[] message_bytes = message.getBytes();
@@ -60,11 +60,11 @@ public class SocketManager {
                 outputStream.write(buffer);
             }
         } else {
-            throw new ClientIsStoped();
+            throw new ClientIsStopped();
         }
     }
 
-    public void send(byte[] message) throws Exception {
+    public void send(byte[] message) throws ClientIsStopped, IOException {
         if (isRun) {
             byte[] buffer = new byte[BUFFER_SIZE];
             for (int i = 0; i < message.length; i += BUFFER_SIZE) {
@@ -74,27 +74,27 @@ public class SocketManager {
                 outputStream.write(buffer);
             }
         } else {
-            throw new ClientIsStoped();
+            throw new ClientIsStopped();
         }
     }
 
-    public byte readByte() throws Exception {
+    public byte readByte() throws ClientIsStopped, IOException {
         if (isRun) {
             return inputStream.readByte();
         } else {
-            throw new ClientIsStoped();
+            throw new ClientIsStopped();
         }
     }
 
-    public byte[] readAllBytes() throws Exception {
+    public byte[] readAllBytes() throws ClientIsStopped, IOException {
         if (isRun) {
             return inputStream.readAllBytes();
         } else {
-            throw new ClientIsStoped();
+            throw new ClientIsStopped();
         }
     }
 
-    public String read() throws Exception {
+    public String read() throws ClientIsStopped, IOException {
         if (isRun) {
             String response = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
             long end = response.indexOf('\000');
@@ -103,7 +103,7 @@ public class SocketManager {
             }
             return response;
         } else {
-            throw new ClientIsStoped();
+            throw new ClientIsStopped();
         }
     }
 }

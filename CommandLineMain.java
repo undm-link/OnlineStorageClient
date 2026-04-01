@@ -1,8 +1,6 @@
 import clients.CommandClient;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
 
@@ -142,16 +140,15 @@ class CommandLineMain {
                                 System.out.println("Enter to path to new place for file:");
                                 String path = scanner.nextLine();
 
-                                File file = new File(filePath);
-                                if (file.exists()) {
-                                    var inputStream = new FileInputStream(file);
+                                try (var inputStream = new FileInputStream(filePath)) {
                                     client.createFile(
                                             path,
                                             new String(
                                                     inputStream.readAllBytes(),
                                                     StandardCharsets.UTF_8));
-                                } else {
-                                    System.out.println("File doesn't exists");
+                                } catch (FileNotFoundException e) {
+                                    System.out.println(
+                                            "File " + filePath + " open error: " + e.getMessage());
                                 }
                             }
                             case "create_or_rewrite_file" -> {
@@ -164,20 +161,19 @@ class CommandLineMain {
                             }
                             case "copy_or_rewrite_file" -> {
                                 System.out.println("Enter to path of copied file:");
-                                String file_path = scanner.nextLine();
+                                String filePath = scanner.nextLine();
                                 System.out.println("Enter to path to new place for file:");
                                 String path = scanner.nextLine();
 
-                                File file = new File(file_path);
-                                if (file.exists()) {
-                                    var inputStream = new FileInputStream(file);
+                                try (var inputStream = new FileInputStream(filePath)) {
                                     client.createOrRewriteFile(
                                             path,
                                             new String(
                                                     inputStream.readAllBytes(),
                                                     StandardCharsets.UTF_8));
-                                } else {
-                                    System.out.println("File doesn't exists");
+                                } catch (FileNotFoundException e) {
+                                    System.out.println(
+                                            "File " + filePath + " open error: " + e.getMessage());
                                 }
                             }
                             case "rename" -> {
@@ -222,8 +218,16 @@ class CommandLineMain {
                                 String path = scanner.nextLine();
                                 String fileContent = client.read(path);
                                 System.out.println("Enter path to directory of downloading:");
-                                var file = new FileOutputStream(scanner.nextLine());
-                                file.write(fileContent.getBytes());
+
+                                String filePath = scanner.nextLine();
+                                try (var file = new FileOutputStream(filePath)) {
+                                    file.write(fileContent.getBytes());
+                                } catch (FileNotFoundException e) {
+                                    System.out.println(
+                                            "File " + filePath + " open error: " + e.getMessage());
+                                } catch (IOException e) {
+                                    System.out.println("IO error: " + e.getMessage());
+                                }
                             }
                             // Outdated commands
                             case "replace_file" -> {
@@ -240,6 +244,8 @@ class CommandLineMain {
                         System.out.println("Request Error:");
                         System.out.println(ex.type);
                         System.out.println(ex.message);
+                    } catch (clients.errors.ResponseError ex) {
+                        System.out.println(ex.getMessage());
                     } catch (Exception ex) {
                         System.out.println("Error occurred");
                         System.out.println("Error message: " + ex.getMessage());

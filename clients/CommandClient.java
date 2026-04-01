@@ -1,112 +1,124 @@
 package clients;
 
+import clients.errors.RequestError;
+import clients.errors.ResponseError;
+
+import socket_interaction.errors.ClientException;
+import socket_interaction.errors.ClientIsStopped;
+
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
-public class CommandClient extends Client{
+public class CommandClient extends Client {
     // Public functions
     public CommandClient(String address, int port) {
         super(address, port);
     }
 
     // Private functions
-    private String getResponse() throws Exception {
+    private String getResponse() throws ClientIsStopped, IOException, RequestError {
         ResponseStatus status = ResponseStatus.getByInt(socketManager.readByte());
 
         String response = socketManager.read();
 
-        if(status != ResponseStatus.OK) throw new clients.errors.RequestError(status, response);
+        if (status != ResponseStatus.OK) throw new clients.errors.RequestError(status, response);
 
         return response;
     }
 
-    private byte[] getResponseBytes() throws Exception {
+    private byte[] getResponseBytes() throws ClientIsStopped, IOException, RequestError {
         ResponseStatus status = ResponseStatus.getByInt(socketManager.readByte());
 
         byte[] response = socketManager.readAllBytes();
 
-        if(status != ResponseStatus.OK) throw new clients.errors.RequestError(status, new String(response, StandardCharsets.UTF_8));
+        if (status != ResponseStatus.OK)
+            throw new clients.errors.RequestError(
+                    status, new String(response, StandardCharsets.UTF_8));
 
         return response;
     }
 
     // Commands
-    public DirectoryEntry[] showFiles(String path) throws Exception {
+    public DirectoryEntry[] showFiles(String path)
+            throws ClientException, IOException, RequestError, ResponseError {
         try {
             run();
             socketManager.send("show_files " + path);
 
             String[] arr = getResponse().split(" ");
-            DirectoryEntry[] files = new DirectoryEntry[arr.length/2];
+            DirectoryEntry[] files = new DirectoryEntry[arr.length / 2];
             stop();
 
-            for(int i = 0; i < arr.length/2; ++i) {
-                DirectoryEntryType type = switch (arr[2*i]) {
-                    case "file" -> DirectoryEntryType.FILE;
-                    case "directory" -> DirectoryEntryType.DIRECTORY;
-                    case "" -> null;
-                    default -> throw new Exception("Server send incorrect response");
-                };
-                if(type != null) files[i] = new DirectoryEntry(type, arr[2*i + 1]);
+            for (int i = 0; i < arr.length / 2; ++i) {
+                DirectoryEntryType type =
+                        switch (arr[2 * i]) {
+                            case "file" -> DirectoryEntryType.FILE;
+                            case "directory" -> DirectoryEntryType.DIRECTORY;
+                            case "" -> null;
+                            default -> throw new ResponseError();
+                        };
+                if (type != null) files[i] = new DirectoryEntry(type, arr[2 * i + 1]);
             }
 
             return files;
-        } catch(Exception ex) {
+        } catch (Exception ex) {
             stop();
             throw ex;
         }
     }
 
-    public String read(String path) throws Exception {
+    public String read(String path) throws ClientException, IOException, RequestError {
         try {
             run();
             socketManager.send("read " + path);
             String text = getResponse();
             stop();
             return text;
-        } catch(Exception ex) {
+        } catch (Exception ex) {
             stop();
             throw ex;
         }
     }
 
-    public byte[] readBytes(String path) throws Exception {
+    public byte[] readBytes(String path) throws ClientException, IOException, RequestError {
         try {
             run();
             socketManager.send("read " + path);
             byte[] text = getResponseBytes();
             stop();
             return text;
-        } catch(Exception ex) {
+        } catch (Exception ex) {
             stop();
             throw ex;
         }
     }
 
-    public void deleteAll(String path) throws Exception {
+    public void deleteAll(String path) throws ClientException, IOException, RequestError {
         try {
             run();
             socketManager.send("delete_all " + path);
             getResponse();
             stop();
-        } catch(Exception ex) {
+        } catch (Exception ex) {
             stop();
             throw ex;
         }
     }
 
-    public void delete(String path)  throws Exception {
+    public void delete(String path) throws ClientException, IOException, RequestError {
         try {
             run();
             socketManager.send("delete " + path);
             getResponse();
             stop();
-        } catch(Exception ex) {
+        } catch (Exception ex) {
             stop();
             throw ex;
         }
     }
 
-    public void changeData(String path, String newName, String newPath) throws Exception {
+    public void changeData(String path, String newName, String newPath)
+            throws ClientException, IOException, RequestError {
         try {
             String message = "change_data " + path;
             if (newName != null) {
@@ -120,95 +132,103 @@ public class CommandClient extends Client{
             socketManager.send(message);
             getResponse();
             stop();
-        } catch(Exception ex) {
+        } catch (Exception ex) {
             stop();
             throw ex;
         }
     }
 
-    public void changeData(String path, String newName) throws Exception {
+    public void changeData(String path, String newName)
+            throws ClientException, IOException, RequestError {
         changeData(path, newName, null);
     }
 
-    public void createFile(String filePath, String text) throws Exception {
+    public void createFile(String filePath, String text)
+            throws ClientException, IOException, RequestError {
         try {
             run();
             socketManager.send("create_file " + filePath + " " + text.length());
             socketManager.send(text);
             getResponse();
             stop();
-        } catch(Exception ex) {
+        } catch (Exception ex) {
             stop();
             throw ex;
         }
     }
 
-    public void createFile(String filePath, byte[] text) throws Exception {
+    public void createFile(String filePath, byte[] text)
+            throws ClientException, IOException, RequestError {
         try {
             run();
             socketManager.send("create_file " + filePath + " " + text.length);
             socketManager.send(text);
             getResponse();
             stop();
-        } catch(Exception ex) {
+        } catch (Exception ex) {
             stop();
             throw ex;
         }
     }
 
-    public void rewriteFile(String filePath, String text) throws Exception {
+    public void rewriteFile(String filePath, String text)
+            throws ClientException, IOException, RequestError {
         try {
             run();
             socketManager.send("rewrite_file " + filePath + " " + text.length());
             socketManager.send(text);
             getResponse();
             stop();
-        } catch(Exception ex) {
+        } catch (Exception ex) {
             stop();
             throw ex;
         }
     }
 
-    public void rewriteFile(String filePath, byte[] text) throws Exception {
+    public void rewriteFile(String filePath, byte[] text)
+            throws ClientException, IOException, RequestError {
         try {
             run();
             socketManager.send("rewrite_file " + filePath + " " + text.length);
             socketManager.send(text);
             getResponse();
             stop();
-        } catch(Exception ex) {
+        } catch (Exception ex) {
             stop();
             throw ex;
         }
     }
 
-    public void createOrRewriteFile(String filePath, String text) throws Exception {
-        try{
-        run();
+    public void createOrRewriteFile(String filePath, String text)
+            throws ClientException, IOException, RequestError {
+        try {
+            run();
             socketManager.send("create_or_rewrite_file " + filePath + " " + text.length());
             socketManager.send(text);
             getResponse();
             stop();
-        } catch(Exception ex) {
+        } catch (Exception ex) {
             stop();
             throw ex;
         }
     }
 
-    public void createOrRewriteFile(String filePath, byte[] text) throws Exception {
-        try{
+    public void createOrRewriteFile(String filePath, byte[] text)
+            throws ClientException, IOException, RequestError {
+        try {
             run();
             socketManager.send("create_or_rewrite_file " + filePath + " " + text.length);
             socketManager.send(text);
             getResponse();
             stop();
-        } catch(Exception ex) {
+        } catch (Exception ex) {
             stop();
             throw ex;
         }
     }
 
-    public void changeFileData(String path, String newName) throws Exception {
+    public void changeFileData(String path, String newName)
+            throws ClientException, IOException, RequestError {
         try {
             String message = "change_file_data " + path;
             if (newName != null) {
@@ -219,29 +239,31 @@ public class CommandClient extends Client{
             socketManager.send(message);
             getResponse();
             stop();
-        } catch(Exception ex) {
+        } catch (Exception ex) {
             stop();
             throw ex;
         }
     }
 
-    public void replace(String oldPath, String newPath) throws Exception {
+    public void replace(String oldPath, String newPath)
+            throws ClientException, IOException, RequestError {
         changeData(oldPath, null, newPath);
     }
 
-    public void createDirectory(String path) throws Exception {
+    public void createDirectory(String path) throws ClientException, IOException, RequestError {
         try {
             run();
             socketManager.send("create_directory " + path);
             getResponse();
             stop();
-        } catch(Exception ex) {
+        } catch (Exception ex) {
             stop();
             throw ex;
         }
     }
 
-    public void changeDirectoryData(String path, String newName) throws Exception {
+    public void changeDirectoryData(String path, String newName)
+            throws ClientException, IOException, RequestError {
         try {
             String message = "change_directory_data " + path;
             if (newName != null) {
@@ -252,20 +274,21 @@ public class CommandClient extends Client{
             socketManager.send(message);
             getResponse();
             stop();
-        } catch(Exception ex) {
+        } catch (Exception ex) {
             stop();
             throw ex;
         }
     }
 
     // Outdated commands
-    public void replaceFile(String oldPath, String newPath) throws Exception {
+    public void replaceFile(String oldPath, String newPath)
+            throws ClientException, IOException, RequestError {
         try {
             run();
             socketManager.send("replace_file " + oldPath + " " + newPath);
             getResponse();
             stop();
-        } catch(Exception ex) {
+        } catch (Exception ex) {
             stop();
             throw ex;
         }
