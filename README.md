@@ -1,12 +1,11 @@
 # UI client
-```
-./Desktop
-```
+
+To start ui app run DesktopMain.java with javafx
 
 # Command-line client
 ## Run client
 ```
-./CommandLineMain --address server_address --port server_port
+java ./CommandLineMain.java --address server_address --port server_port
 ```
 
 * server_address(optional) - web address of server
